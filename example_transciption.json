@@ -1,0 +1,366 @@
+{
+    "language_code": "eng",
+    "language_probability": 0.8173669576644897,
+    "text": "With a soft and whispery American accent, I'm the ideal choice for creating ASMR content, meditative guides, or adding an intimate feel to your narrative projects.",
+    "words": [
+        {
+            "text": "With",
+            "start": 0.099,
+            "end": 0.239,
+            "type": "word",
+            "logprob": -9.77468371274881e-05
+        },
+        {
+            "text": " ",
+            "start": 0.239,
+            "end": 0.28,
+            "type": "spacing",
+            "logprob": -5.960462772236497e-07
+        },
+        {
+            "text": "a",
+            "start": 0.28,
+            "end": 0.34,
+            "type": "word",
+            "logprob": -5.960462772236497e-07
+        },
+        {
+            "text": " ",
+            "start": 0.34,
+            "end": 0.5,
+            "type": "spacing",
+            "logprob": -3.576278118089249e-07
+        },
+        {
+            "text": "soft",
+            "start": 0.5,
+            "end": 1.039,
+            "type": "word",
+            "logprob": -3.576278118089249e-07
+        },
+        {
+            "text": " ",
+            "start": 1.039,
+            "end": 1.219,
+            "type": "spacing",
+            "logprob": -5.960462772236497e-07
+        },
+        {
+            "text": "and",
+            "start": 1.22,
+            "end": 1.339,
+            "type": "word",
+            "logprob": -5.960462772236497e-07
+        },
+        {
+            "text": " ",
+            "start": 1.339,
+            "end": 1.459,
+            "type": "spacing",
+            "logprob": -0.0007481159991584718
+        },
+        {
+            "text": "whispery",
+            "start": 1.459,
+            "end": 1.959,
+            "type": "word",
+            "logprob": -0.000654869719880935
+        },
+        {
+            "text": " ",
+            "start": 1.959,
+            "end": 2.199,
+            "type": "spacing",
+            "logprob": -5.960462772236497e-07
+        },
+        {
+            "text": "American",
+            "start": 2.2,
+            "end": 2.7,
+            "type": "word",
+            "logprob": -5.960462772236497e-07
+        },
+        {
+            "text": " ",
+            "start": 2.7,
+            "end": 2.839,
+            "type": "spacing",
+            "logprob": -1.1920928244535389e-07
+        },
+        {
+            "text": "accent,",
+            "start": 2.839,
+            "end": 3.339,
+            "type": "word",
+            "logprob": -3.155294065087284e-05
+        },
+        {
+            "text": " ",
+            "start": 3.339,
+            "end": 4.279,
+            "type": "spacing",
+            "logprob": -2.3841855067985307e-07
+        },
+        {
+            "text": "I'm",
+            "start": 4.279,
+            "end": 4.46,
+            "type": "word",
+            "logprob": -0.00010917786856860327
+        },
+        {
+            "text": " ",
+            "start": 4.46,
+            "end": 4.539,
+            "type": "spacing",
+            "logprob": 0.0
+        },
+        {
+            "text": "the",
+            "start": 4.539,
+            "end": 4.599,
+            "type": "word",
+            "logprob": 0.0
+        },
+        {
+            "text": " ",
+            "start": 4.599,
+            "end": 4.759,
+            "type": "spacing",
+            "logprob": 0.0
+        },
+        {
+            "text": "ideal",
+            "start": 4.759,
+            "end": 5.079,
+            "type": "word",
+            "logprob": 0.0
+        },
+        {
+            "text": " ",
+            "start": 5.079,
+            "end": 5.239,
+            "type": "spacing",
+            "logprob": -8.344646857949556e-07
+        },
+        {
+            "text": "choice",
+            "start": 5.239,
+            "end": 5.699,
+            "type": "word",
+            "logprob": -8.344646857949556e-07
+        },
+        {
+            "text": " ",
+            "start": 5.699,
+            "end": 6.119,
+            "type": "spacing",
+            "logprob": -9.536738616588991e-07
+        },
+        {
+            "text": "for",
+            "start": 6.119,
+            "end": 6.179,
+            "type": "word",
+            "logprob": -9.536738616588991e-07
+        },
+        {
+            "text": " ",
+            "start": 6.179,
+            "end": 6.299,
+            "type": "spacing",
+            "logprob": -9.536738616588991e-07
+        },
+        {
+            "text": "creating",
+            "start": 6.299,
+            "end": 6.879,
+            "type": "word",
+            "logprob": -9.536738616588991e-07
+        },
+        {
+            "text": " ",
+            "start": 6.879,
+            "end": 7.019,
+            "type": "spacing",
+            "logprob": -2.5987286790041253e-05
+        },
+        {
+            "text": "ASMR",
+            "start": 7.019,
+            "end": 7.739,
+            "type": "word",
+            "logprob": -1.549703210912412e-05
+        },
+        {
+            "text": " ",
+            "start": 7.739,
+            "end": 7.879,
+            "type": "spacing",
+            "logprob": -4.887569048150908e-06
+        },
+        {
+            "text": "content,",
+            "start": 7.879,
+            "end": 8.38,
+            "type": "word",
+            "logprob": -9.477019943915366e-06
+        },
+        {
+            "text": " ",
+            "start": 8.38,
+            "end": 9.099,
+            "type": "spacing",
+            "logprob": -3.099436753473128e-06
+        },
+        {
+            "text": "meditative",
+            "start": 9.099,
+            "end": 9.619,
+            "type": "word",
+            "logprob": -3.099436753473128e-06
+        },
+        {
+            "text": " ",
+            "start": 9.619,
+            "end": 9.719,
+            "type": "spacing",
+            "logprob": -3.4570634852570947e-06
+        },
+        {
+            "text": "guides,",
+            "start": 9.719,
+            "end": 10.219,
+            "type": "word",
+            "logprob": -0.00010445938836970267
+        },
+        {
+            "text": " ",
+            "start": 10.219,
+            "end": 10.219,
+            "type": "spacing",
+            "logprob": -2.3841855067985307e-07
+        },
+        {
+            "text": "or",
+            "start": 11.34,
+            "end": 11.479,
+            "type": "word",
+            "logprob": -2.3841855067985307e-07
+        },
+        {
+            "text": " ",
+            "start": 11.479,
+            "end": 11.579,
+            "type": "spacing",
+            "logprob": 0.0
+        },
+        {
+            "text": "adding",
+            "start": 11.579,
+            "end": 11.859,
+            "type": "word",
+            "logprob": 0.0
+        },
+        {
+            "text": " ",
+            "start": 11.859,
+            "end": 11.979,
+            "type": "spacing",
+            "logprob": 0.0
+        },
+        {
+            "text": "an",
+            "start": 11.979,
+            "end": 12.059,
+            "type": "word",
+            "logprob": 0.0
+        },
+        {
+            "text": " ",
+            "start": 12.059,
+            "end": 12.199,
+            "type": "spacing",
+            "logprob": 0.0
+        },
+        {
+            "text": "intimate",
+            "start": 12.199,
+            "end": 12.559,
+            "type": "word",
+            "logprob": 0.0
+        },
+        {
+            "text": " ",
+            "start": 12.559,
+            "end": 12.699,
+            "type": "spacing",
+            "logprob": -1.1920928244535389e-07
+        },
+        {
+            "text": "feel",
+            "start": 12.699,
+            "end": 13.139,
+            "type": "word",
+            "logprob": -1.1920928244535389e-07
+        },
+        {
+            "text": " ",
+            "start": 13.139,
+            "end": 13.179,
+            "type": "spacing",
+            "logprob": 0.0
+        },
+        {
+            "text": "to",
+            "start": 13.179,
+            "end": 13.26,
+            "type": "word",
+            "logprob": 0.0
+        },
+        {
+            "text": " ",
+            "start": 13.26,
+            "end": 13.319,
+            "type": "spacing",
+            "logprob": -1.1920928244535389e-07
+        },
+        {
+            "text": "your",
+            "start": 13.319,
+            "end": 13.38,
+            "type": "word",
+            "logprob": -1.1920928244535389e-07
+        },
+        {
+            "text": " ",
+            "start": 13.38,
+            "end": 13.479,
+            "type": "spacing",
+            "logprob": 0.0
+        },
+        {
+            "text": "narrative",
+            "start": 13.479,
+            "end": 13.84,
+            "type": "word",
+            "logprob": 0.0
+        },
+        {
+            "text": " ",
+            "start": 13.84,
+            "end": 13.939,
+            "type": "spacing",
+            "logprob": -2.3841855067985307e-07
+        },
+        {
+            "text": "projects.",
+            "start": 13.939,
+            "end": 14.559,
+            "type": "word",
+            "logprob": -0.07701659202573158
+        }
+    ],
+    "transcription_id": "oskrTslENRVaXSqAk3Zi",
+    "audio_duration_secs": 14.8114375
+}

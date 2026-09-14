@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0b1020" />
+    <title>Lyric Glow — synced lyrics</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --ink: #f6f7fb;
+        --muted: #a8adc1;
+        --panel: rgba(20, 25, 38, .9);
+        --panel-strong: #171d2b;
+        --line: rgba(255, 255, 255, .1);
+        --violet: #9d8aff;
+        --pink: #ee8dba;
+        --cyan: #7bd9ed;
+      }
+      * { box-sizing: border-box; }
+      body {
+        min-height: 100vh; margin: 0; color: var(--ink);
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        background: #0c1018;
+      }
+      body::before, body::after {
+        content: ""; position: fixed; z-index: -1; width: 26rem; height: 26rem; border-radius: 50%; filter: blur(105px); opacity: .13;
+      }
+      body::before { background: var(--violet); left: -14rem; top: -12rem; }
+      body::after { background: var(--pink); right: -14rem; bottom: -16rem; }
+      .shell { width: min(1080px, calc(100% - 32px)); margin: 0 auto; padding: 56px 0 80px; }
+      header { display: flex; align-items: center; justify-content: space-between; gap: 24px; margin-bottom: 44px; }
+      .brand { display: flex; align-items: center; gap: 12px; font-weight: 760; letter-spacing: -.04em; font-size: 1.2rem; }
+      .spark { width: 35px; height: 35px; border-radius: 11px; display: grid; place-items: center; background: var(--violet); color: #151121; box-shadow: 0 10px 28px rgba(157,138,255,.23); }
+      .pill { border: 1px solid var(--line); color: var(--muted); border-radius: 999px; padding: 8px 12px; font-size: .78rem; background: rgba(255,255,255,.025); }
+      .intro { max-width: 680px; margin-bottom: 32px; }
+      h1 { margin: 0; font-size: clamp(2.6rem, 7vw, 5.4rem); line-height: .98; letter-spacing: -.07em; }
+      h1 span { color: var(--violet); }
+      .intro p { color: var(--muted); font-size: 1.05rem; line-height: 1.65; max-width: 560px; margin: 20px 0 0; }
+      .grid { display: grid; grid-template-columns: minmax(0, .85fr) minmax(0, 1.15fr); gap: 20px; align-items: start; }
+      .card { background: var(--panel); border: 1px solid var(--line); box-shadow: 0 20px 70px rgba(0,0,0,.2); border-radius: 24px; backdrop-filter: blur(18px); }
+      .upload-card { padding: 20px; }
+      .drop-zone { display: grid; place-items: center; min-height: 210px; text-align: center; border: 1px dashed rgba(157,138,255,.5); border-radius: 17px; background: rgba(255,255,255,.025); cursor: pointer; transition: .2s ease; }
+      .drop-zone:hover, .drop-zone.drag { border-color: var(--cyan); background: rgba(123,217,237,.07); transform: translateY(-2px); }
+      .upload-icon { color: var(--cyan); margin-bottom: 10px; }
+      .drop-zone strong { font-size: 1rem; }
+      .drop-zone small { display: block; color: var(--muted); margin: 7px 0 14px; }
+      button, .browse { font: inherit; border: 0; cursor: pointer; }
+      .browse { display: inline-block; color: #151121; background: #e8e4ff; padding: 9px 13px; border-radius: 10px; font-size: .83rem; font-weight: 700; }
+      #audioInput { display: none; }
+      .file-info { display: none; align-items: center; justify-content: space-between; gap: 12px; padding: 15px 2px 5px; }
+      .file-info.show { display: flex; }
+      .file-name { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: .88rem; font-weight: 650; }
+      .file-size { color: var(--muted); font-size: .78rem; margin-top: 4px; }
+      .clear { background: transparent; color: var(--muted); padding: 8px; font-size: 1.15rem; }
+      .transcribe { width: 100%; color: #151121; margin-top: 17px; padding: 14px 18px; border-radius: 13px; font-weight: 780; background: var(--violet); box-shadow: 0 10px 25px rgba(157,138,255,.18); transition: transform .2s, background .2s, opacity .2s; }
+      .transcribe:hover:not(:disabled) { transform: translateY(-2px); background: #b0a2ff; }
+      .transcribe:disabled { opacity: .48; cursor: not-allowed; }
+      .search-divider { display: flex; align-items: center; gap: 11px; color: #747b91; font-size: .72rem; font-weight: 750; letter-spacing: .1em; text-transform: uppercase; margin: 20px 0 15px; }
+      .search-divider::before, .search-divider::after { content: ""; height: 1px; flex: 1; background: var(--line); }
+      .search-label { display: block; margin-bottom: 9px; font-size: .83rem; font-weight: 700; }
+      .search-row { display: flex; gap: 8px; }
+      .search-input { min-width: 0; flex: 1; color: var(--ink); border: 1px solid var(--line); outline: none; border-radius: 11px; padding: 11px 12px; font: inherit; font-size: .86rem; background: rgba(255,255,255,.035); transition: border-color .2s, background .2s; }
+      .search-input::placeholder { color: #747b91; }
+      .search-input:focus { border-color: var(--violet); background: rgba(157,138,255,.07); }
+      .search-button { flex: 0 0 auto; color: #161223; border-radius: 11px; padding: 0 13px; font-size: .82rem; font-weight: 780; background: #e8e4ff; transition: transform .2s, opacity .2s; }
+      .search-button:hover:not(:disabled) { transform: translateY(-1px); }
+      .search-button:disabled { cursor: wait; opacity: .55; }
+      .search-hint { margin: 9px 1px 0; color: #747b91; font-size: .73rem; line-height: 1.45; }
+      .player-card { overflow: hidden; }
+      .cover { min-height: 195px; padding: 24px; display: flex; align-items: flex-end; position: relative; isolation: isolate; overflow: hidden; background: #202938; }
+      .cover::before { content: ""; position: absolute; z-index: -1; width: 180px; height: 180px; border-radius: 50%; background: var(--violet); opacity: .75; right: -48px; top: -53px; box-shadow: -55px 95px 0 -25px var(--pink); }
+      .cover::after { content: "♪"; position: absolute; z-index: -1; font-size: 14rem; font-weight: 200; line-height: 1; right: 32px; bottom: -84px; color: rgba(255,255,255,.06); transform: rotate(10deg); }
+      .cover .track-title { font-size: 1.35rem; font-weight: 760; letter-spacing: -.04em; word-break: break-word; }
+      .cover .artist { margin-top: 5px; color: rgba(255,255,255,.77); font-size: .88rem; }
+      .audio-wrap { padding: 16px 20px 19px; }
+      audio { width: 100%; height: 42px; }
+      .status { min-height: 22px; color: var(--muted); font-size: .84rem; padding-top: 8px; }
+      .status.error { color: #ff9bcf; }
+      .lyrics-card { grid-column: 1 / -1; min-height: 325px; padding: clamp(23px, 5vw, 48px); }
+      .lyrics-head { display: flex; justify-content: space-between; gap: 16px; align-items: center; margin-bottom: 25px; }
+      .eyebrow { color: var(--cyan); font-size: .7rem; font-weight: 800; letter-spacing: .13em; text-transform: uppercase; }
+      .language { color: var(--muted); font-size: .82rem; }
+      #lyrics { font-size: clamp(1.38rem, 3.2vw, 2.35rem); line-height: 1.58; letter-spacing: -.035em; font-weight: 680; }
+      #lyrics.empty { color: #777e99; font-size: 1.05rem; font-weight: 500; letter-spacing: 0; line-height: 1.6; }
+      .lyric-word { color: rgba(246,247,251,.3); cursor: pointer; transition: color .16s ease, opacity .16s ease, text-shadow .16s ease; }
+      .lyric-word:hover { color: rgba(246,247,251,.82); }
+      .lyric-word.completed { color: rgba(246,247,251,.86); }
+      .lyric-word.active { color: #fff; text-shadow: 0 0 20px rgba(123,217,237,.5); }
+      .word-space { white-space: pre-wrap; }
+      @media (max-width: 720px) { .shell { padding-top: 26px; } header { margin-bottom: 34px; } .grid { grid-template-columns: 1fr; } .lyrics-card { grid-column: auto; } }
+      @media (max-width: 390px) { .search-row { flex-direction: column; } .search-button { min-height: 41px; } }
+    </style>
+  </head>
+  <body>
+    <main class="shell">
+      <header>
+        <div class="brand"><span class="spark">✦</span> Lyric Glow</div>
+        <div class="pill">Word-synced transcription</div>
+      </header>
+      <section class="intro">
+        <h1>Hear it.<br /><span>Read it live.</span></h1>
+        <p>Upload a song, create its timed transcript, then follow every word as the music plays.</p>
+      </section>
+      <div class="grid">
+        <section class="card upload-card">
+          <label class="drop-zone" id="dropZone" for="audioInput">
+            <div>
+              <div class="upload-icon" aria-hidden="true">⌁</div>
+              <strong>Drop your song here</strong>
+              <small>MP3, WAV, M4A, and other audio files</small>
+              <span class="browse">Choose audio</span>
+            </div>
+          </label>
+          <input id="audioInput" type="file" accept="audio/*" />
+          <div class="file-info" id="fileInfo">
+            <div><div class="file-name" id="fileName"></div><div class="file-size" id="fileSize"></div></div>
+            <button class="clear" id="clearFile" type="button" aria-label="Remove selected audio">×</button>
+          </div>
+          <button class="transcribe" id="transcribeButton" type="button" disabled>Generate synced lyrics</button>
+          <div class="search-divider">or</div>
+          <form id="songSearchForm">
+            <label class="search-label" for="songSearchInput">Find a song</label>
+            <div class="search-row">
+              <input class="search-input" id="songSearchInput" maxlength="200" placeholder="Song title or artist" required />
+              <button class="search-button" id="songSearchButton" type="submit">Find &amp; transcribe</button>
+            </div>
+            <p class="search-hint">Uses the first matching YouTube result without audio conversion.</p>
+          </form>
+        </section>
+        <section class="card player-card">
+          <div class="cover">
+            <div><div class="track-title" id="trackTitle">Your track will appear here</div><div class="artist" id="trackSource">Local audio preview</div></div>
+          </div>
+          <div class="audio-wrap">
+            <audio id="audioPlayer" controls preload="metadata"></audio>
+            <div class="status" id="status" role="status">Choose a song to start.</div>
+          </div>
+        </section>
+        <section class="card lyrics-card">
+          <div class="lyrics-head"><div class="eyebrow">Live lyrics</div><div class="language" id="language"></div></div>
+          <div id="lyrics" class="empty">Your time-synchronised lyrics will appear here after transcription. Press play to follow along.</div>
+        </section>
+      </div>
+    </main>
+    <script>
+      const input = document.querySelector('#audioInput');
+      const dropZone = document.querySelector('#dropZone');
+      const player = document.querySelector('#audioPlayer');
+      const button = document.querySelector('#transcribeButton');
+      const searchForm = document.querySelector('#songSearchForm');
+      const searchInput = document.querySelector('#songSearchInput');
+      const searchButton = document.querySelector('#songSearchButton');
+      const lyrics = document.querySelector('#lyrics');
+      const status = document.querySelector('#status');
+      const language = document.querySelector('#language');
+      let selectedFile = null;
+      let audioUrl = null;
+      let timedWords = [];
+      let activeIndex = -1;
+
+      const formatBytes = (bytes) => bytes < 1024 * 1024 ? `${Math.max(1, Math.round(bytes / 1024))} KB` : `${(bytes / 1024 / 1024).toFixed(1)} MB`;
+      const setStatus = (message, error = false) => { status.textContent = message; status.classList.toggle('error', error); };
+
+      function chooseFile(file) {
+        if (!file) return;
+        selectedFile = file;
+        if (audioUrl) URL.revokeObjectURL(audioUrl);
+        audioUrl = URL.createObjectURL(file);
+        player.src = audioUrl;
+        document.querySelector('#fileName').textContent = file.name;
+        document.querySelector('#fileSize').textContent = formatBytes(file.size);
+        document.querySelector('#fileInfo').classList.add('show');
+        document.querySelector('#trackTitle').textContent = file.name.replace(/\.[^.]+$/, '');
+        document.querySelector('#trackSource').textContent = 'Local audio preview';
+        button.disabled = false;
+        timedWords = []; activeIndex = -1;
+        lyrics.textContent = 'Ready to transcribe. You can preview your song now, then generate timed lyrics.';
+        lyrics.className = 'empty'; language.textContent = '';
+        setStatus('Preview ready. Generate lyrics when you are ready.');
+      }
+
+      function resetFile() {
+        selectedFile = null; input.value = ''; player.removeAttribute('src'); player.load();
+        if (audioUrl) URL.revokeObjectURL(audioUrl); audioUrl = null;
+        document.querySelector('#fileInfo').classList.remove('show');
+        document.querySelector('#trackTitle').textContent = 'Your track will appear here';
+        document.querySelector('#trackSource').textContent = 'Local audio preview';
+        button.disabled = true; timedWords = []; activeIndex = -1;
+        lyrics.textContent = 'Your time-synchronised lyrics will appear here after transcription. Press play to follow along.';
+        lyrics.className = 'empty'; language.textContent = ''; setStatus('Choose a song to start.');
+      }
+
+      input.addEventListener('change', () => chooseFile(input.files[0]));
+      document.querySelector('#clearFile').addEventListener('click', resetFile);
+      ['dragenter', 'dragover'].forEach(event => dropZone.addEventListener(event, (e) => { e.preventDefault(); dropZone.classList.add('drag'); }));
+      ['dragleave', 'drop'].forEach(event => dropZone.addEventListener(event, (e) => { e.preventDefault(); dropZone.classList.remove('drag'); }));
+      dropZone.addEventListener('drop', (e) => chooseFile(e.dataTransfer.files[0]));
+
+      function renderLyrics(words) {
+        lyrics.replaceChildren();
+        timedWords = [];
+        let skipFollowingSpacing = false;
+        words.forEach((word) => {
+          if (word.type === 'spacing') {
+            if (skipFollowingSpacing) {
+              skipFollowingSpacing = false;
+              return;
+            }
+            lyrics.append(document.createTextNode(word.text));
+            return;
+          }
+          const span = document.createElement('span');
+          span.className = 'lyric-word'; span.textContent = word.text;
+          span.dataset.start = word.start; span.dataset.end = word.end;
+          span.addEventListener('click', () => { player.currentTime = Number(word.start); player.play(); });
+          lyrics.append(span); timedWords.push({ start: Number(word.start), end: Number(word.end), element: span });
+          if (/[.,।]$/u.test(word.text.trim())) {
+            lyrics.append(document.createElement('br'));
+            skipFollowingSpacing = true;
+          }
+        });
+        lyrics.className = '';
+      }
+
+      function updateActiveWord() {
+        const time = player.currentTime;
+        const next = timedWords.findIndex((word) => time >= word.start && time <= word.end);
+        timedWords.forEach((word) => {
+          word.element.classList.toggle('completed', time >= word.end);
+        });
+        if (next === activeIndex) return;
+        if (activeIndex >= 0) timedWords[activeIndex].element.classList.remove('active');
+        activeIndex = next;
+        if (activeIndex >= 0) {
+          const current = timedWords[activeIndex].element;
+          current.classList.add('active');
+          current.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: 'smooth' });
+        }
+      }
+      player.addEventListener('timeupdate', updateActiveWord);
+      player.addEventListener('seeked', updateActiveWord);
+      player.addEventListener('ended', () => { if (activeIndex >= 0) timedWords[activeIndex].element.classList.remove('active'); activeIndex = -1; });
+
+      function loadDownloadedTrack(payload) {
+        selectedFile = null;
+        input.value = '';
+        if (audioUrl) URL.revokeObjectURL(audioUrl);
+        audioUrl = null;
+        document.querySelector('#fileInfo').classList.remove('show');
+        player.src = payload.track.audio_url;
+        player.load();
+        document.querySelector('#trackTitle').textContent = payload.track.title;
+        document.querySelector('#trackSource').textContent = 'First matching YouTube result';
+        renderLyrics(payload.words);
+        language.textContent = payload.language_code ? `Detected: ${payload.language_code.toUpperCase()}` : '';
+        button.disabled = true;
+      }
+
+      searchForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const query = searchInput.value.trim();
+        if (!query) return;
+        searchButton.disabled = true;
+        button.disabled = true;
+        searchButton.textContent = 'Finding song…';
+        setStatus('Finding the first result, downloading audio, and creating timed lyrics.');
+        try {
+          const response = await fetch('/search-and-transcribe', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ query }),
+          });
+          const payload = await response.json().catch(() => ({}));
+          if (!response.ok) throw new Error(payload.detail || 'Unable to find that song.');
+          if (!payload.track?.audio_url || !payload.words?.length) throw new Error('The song was found but did not include timed lyrics.');
+          loadDownloadedTrack(payload);
+          setStatus('Lyrics are ready — press play and follow the glow.');
+        } catch (error) {
+          button.disabled = !selectedFile;
+          setStatus(error.message || 'Unable to download or transcribe that song.', true);
+        } finally {
+          searchButton.disabled = false;
+          searchButton.textContent = 'Find & transcribe';
+        }
+      });
+
+      button.addEventListener('click', async () => {
+        if (!selectedFile) return;
+        button.disabled = true; button.textContent = 'Transcribing your song…';
+        setStatus('Creating word-level timestamps. This can take a moment.');
+        try {
+          const data = new FormData(); data.append('file', selectedFile);
+          const response = await fetch('/transcribe', { method: 'POST', body: data });
+          const payload = await response.json();
+          if (!response.ok) throw new Error(payload.detail || 'Transcription failed.');
+          if (!payload.words?.length) throw new Error('The transcription did not include timed words.');
+          renderLyrics(payload.words);
+          language.textContent = payload.language_code ? `Detected: ${payload.language_code.toUpperCase()}` : '';
+          setStatus('Lyrics are ready — press play and follow the glow.');
+        } catch (error) {
+          setStatus(error.message || 'Unable to transcribe this audio file.', true);
+        } finally {
+          button.disabled = false; button.textContent = 'Generate synced lyrics';
+        }
+      });
+    </script>
+  </body>
+</html>
