@@ -20,6 +20,7 @@ def download_song(
 
     output_stem = Path(destination).with_suffix("")
     output_stem.parent.mkdir(parents=True, exist_ok=True)
+    cookies_file = Path(__file__).parent / "cookies.txt"
 
     ydl_opts = {
         "format": "bestaudio[ext=m4a]/bestaudio[ext=webm]/bestaudio/best",
@@ -34,6 +35,9 @@ def download_song(
 
     if proxy:
         ydl_opts["proxy"] = proxy
+
+    if cookies_file.is_file():
+        ydl_opts["cookiefile"] = str(cookies_file)
 
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         result = ydl.extract_info(
