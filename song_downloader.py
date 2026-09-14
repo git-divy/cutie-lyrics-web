@@ -1,9 +1,10 @@
 from dataclasses import dataclass
 from pathlib import Path
 
-import yt_dlp
 import os
+import yt_dlp
 from dotenv import load_dotenv
+
 load_dotenv()
 
 
@@ -20,6 +21,7 @@ def download_song(
 
     output_stem = Path(destination).with_suffix("")
     output_stem.parent.mkdir(parents=True, exist_ok=True)
+
     cookies_file = Path(__file__).parent / "cookies.txt"
 
     ydl_opts = {
@@ -29,6 +31,13 @@ def download_song(
         "quiet": True,
         "no_warnings": True,
         "nopart": True,
+
+        # Fix YouTube cookie/client issue
+        "extractor_args": {
+            "youtube": {
+                "player_client": ["default", "web_embedded"],
+            }
+        },
     }
 
     proxy = os.getenv("PROXY")
