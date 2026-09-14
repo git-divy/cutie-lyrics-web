@@ -17,8 +17,15 @@ from song_downloader import download_song
 load_dotenv()
 
 app = FastAPI(title="Audio Transcription API")
-DOWNLOAD_DIR = Path(__file__).parent / "downloads"
-DOWNLOAD_DIR.mkdir(exist_ok=True)
+DOWNLOAD_DIR = Path(
+    os.getenv(
+        "DOWNLOAD_DIR",
+        "/tmp/lyric-glow-downloads"
+        if os.getenv("VERCEL")
+        else Path(__file__).parent / "downloads",
+    )
+)
+DOWNLOAD_DIR.mkdir(parents=True, exist_ok=True)
 DOWNLOAD_MEDIA_TYPES = {
     ".aac": "audio/aac",
     ".m4a": "audio/mp4",
