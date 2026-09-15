@@ -31,22 +31,7 @@ def download_song(
         "quiet": True,
         "no_warnings": True,
         "nopart": True,
-
-        # Fix YouTube cookie/client issue
-        "extractor_args": {
-            "youtube": {
-                "player_client": ["default", "web_embedded"],
-            }
-        },
     }
-
-    proxy = os.getenv("PROXY")
-
-    if proxy:
-        ydl_opts["proxy"] = proxy
-
-    if cookies_file.is_file():
-        ydl_opts["cookiefile"] = str(cookies_file)
 
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         result = ydl.extract_info(
