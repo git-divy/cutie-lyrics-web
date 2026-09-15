@@ -67,6 +67,11 @@
       .search-button:hover:not(:disabled) { transform: translateY(-1px); }
       .search-button:disabled { cursor: wait; opacity: .55; }
       .search-hint { margin: 9px 1px 0; color: #747b91; font-size: .73rem; line-height: 1.45; }
+      .progress-wrap { display: none; margin-top: 17px; }
+      .progress-wrap.show { display: block; }
+      .progress-meta { display: flex; justify-content: space-between; gap: 12px; color: var(--muted); font-size: .76rem; font-weight: 650; margin: 0 1px 7px; }
+      .progress-track { height: 7px; overflow: hidden; border-radius: 999px; background: rgba(255,255,255,.09); }
+      .progress-bar { width: 0; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--violet), var(--cyan)); box-shadow: 0 0 14px rgba(123,217,237,.45); transition: width .35s ease; }
       .player-card { overflow: hidden; }
       .cover { min-height: 195px; padding: 24px; display: flex; align-items: flex-end; position: relative; isolation: isolate; overflow: hidden; background: #202938; }
       .cover::before { content: ""; position: absolute; z-index: -1; width: 180px; height: 180px; border-radius: 50%; background: var(--violet); opacity: .75; right: -48px; top: -53px; box-shadow: -55px 95px 0 -25px var(--pink); }
@@ -127,6 +132,10 @@
             </div>
             <p class="search-hint">Uses the first matching YouTube result without audio conversion.</p>
           </form>
+          <div class="progress-wrap" id="progressWrap" aria-live="polite">
+            <div class="progress-meta"><span id="progressLabel">Preparing…</span><span id="progressPercent">0%</span></div>
+            <div class="progress-track" role="progressbar" aria-label="Song processing progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div class="progress-bar" id="progressBar"></div></div>
+          </div>
         </section>
         <section class="card player-card">
           <div class="cover">
@@ -151,6 +160,11 @@
       const searchForm = document.querySelector('#songSearchForm');
       const searchInput = document.querySelector('#songSearchInput');
       const searchButton = document.querySelector('#songSearchButton');
+      const progressWrap = document.querySelector('#progressWrap');
+      const progressBar = document.querySelector('#progressBar');
+      const progressLabel = document.querySelector('#progressLabel');
+      const progressPercent = document.querySelector('#progressPercent');
+      const progressTrack = progressBar.parentElement;
       const lyrics = document.querySelector('#lyrics');
       const status = document.querySelector('#status');
       const language = document.querySelector('#language');
@@ -158,9 +172,40 @@
       let audioUrl = null;
       let timedWords = [];
       let activeIndex = -1;
+      let progressTimer = null;
+      let progressStageTimers = [];
 
       const formatBytes = (bytes) => bytes < 1024 * 1024 ? `${Math.max(1, Math.round(bytes / 1024))} KB` : `${(bytes / 1024 / 1024).toFixed(1)} MB`;
       const setStatus = (message, error = false) => { status.textContent = message; status.classList.toggle('error', error); };
+      function setProgress(percent, label) {
+        const safePercent = Math.max(0, Math.min(100, Math.round(percent)));
+        progressWrap.classList.add('show');
+        progressBar.style.width = `${safePercent}%`;
+        progressPercent.textContent = `${safePercent}%`;
+        progressLabel.textContent = label;
+        progressTrack.setAttribute('aria-valuenow', safePercent);
+      }
+      function startProgress(percent, label, ceiling = 94) {
+        clearInterval(progressTimer);
+        setProgress(percent, label);
+        progressTimer = setInterval(() => {
+          const current = Number(progressTrack.getAttribute('aria-valuenow'));
+          if (current < ceiling) setProgress(current + Math.max(1, (ceiling - current) / 9), label);
+        }, 900);
+      }
+      function scheduleProgress(delay, percent, label, ceiling) {
+        progressStageTimers.push(setTimeout(() => startProgress(percent, label, ceiling), delay));
+      }
+      function stopProgress(success = false) {
+        clearInterval(progressTimer); progressTimer = null;
+        progressStageTimers.forEach(clearTimeout); progressStageTimers = [];
+        if (success) {
+          setProgress(100, 'Lyrics ready');
+          setTimeout(() => progressWrap.classList.remove('show'), 900);
+        } else {
+          progressWrap.classList.remove('show');
+        }
+      }
 
       function chooseFile(file) {
         if (!file) return;
@@ -264,8 +309,11 @@
         searchButton.disabled = true;
         button.disabled = true;
         searchButton.textContent = 'Finding song…';
+        startProgress(8, 'Searching for the song', 28);
         setStatus('Finding the first result, downloading audio, and creating timed lyrics.');
         try {
+          scheduleProgress(1200, 30, 'Downloading audio', 62);
+          scheduleProgress(3200, 64, 'Transcribing lyrics', 94);
           const response = await fetch('/search-and-transcribe', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -276,9 +324,11 @@
           if (!payload.track?.audio_url || !payload.words?.length) throw new Error('The song was found but did not include timed lyrics.');
           loadDownloadedTrack(payload);
           setStatus('Lyrics are ready — press play and follow the glow.');
+          stopProgress(true);
         } catch (error) {
           button.disabled = !selectedFile;
           setStatus(error.message || 'Unable to download or transcribe that song.', true);
+          stopProgress();
         } finally {
           searchButton.disabled = false;
           searchButton.textContent = 'Find & transcribe';
@@ -288,18 +338,36 @@
       button.addEventListener('click', async () => {
         if (!selectedFile) return;
         button.disabled = true; button.textContent = 'Transcribing your song…';
+        startProgress(0, 'Uploading audio', 55);
         setStatus('Creating word-level timestamps. This can take a moment.');
         try {
-          const data = new FormData(); data.append('file', selectedFile);
-          const response = await fetch('/transcribe', { method: 'POST', body: data });
+          const response = await new Promise((resolve, reject) => {
+            const request = new XMLHttpRequest();
+            request.open('POST', '/transcribe');
+            request.upload.addEventListener('progress', (event) => {
+              if (event.lengthComputable) setProgress((event.loaded / event.total) * 55, 'Uploading audio');
+            });
+            request.upload.addEventListener('loadend', () => startProgress(58, 'Transcribing lyrics', 94));
+            request.addEventListener('load', () => {
+              try {
+                resolve({ ok: request.status >= 200 && request.status < 300, json: () => Promise.resolve(JSON.parse(request.responseText || '{}')) });
+              } catch {
+                reject(new Error('The server returned an invalid response.'));
+              }
+            });
+            request.addEventListener('error', () => reject(new Error('The upload could not be completed.')));
+            const data = new FormData(); data.append('file', selectedFile); request.send(data);
+          });
           const payload = await response.json();
           if (!response.ok) throw new Error(payload.detail || 'Transcription failed.');
           if (!payload.words?.length) throw new Error('The transcription did not include timed words.');
           renderLyrics(payload.words);
           language.textContent = payload.language_code ? `Detected: ${payload.language_code.toUpperCase()}` : '';
           setStatus('Lyrics are ready — press play and follow the glow.');
+          stopProgress(true);
         } catch (error) {
           setStatus(error.message || 'Unable to transcribe this audio file.', true);
+          stopProgress();
         } finally {
           button.disabled = false; button.textContent = 'Generate synced lyrics';
         }
