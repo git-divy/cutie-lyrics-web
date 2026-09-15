@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 from pathlib import Path
 
-import os
 import yt_dlp
 from dotenv import load_dotenv
 
@@ -16,7 +15,7 @@ class DownloadedSong:
 
 def download_song(
     query: str,
-    destination: str | Path = "audio"
+    destination: str | Path = "audio",
 ) -> DownloadedSong:
 
     output_stem = Path(destination).with_suffix("")
@@ -30,6 +29,12 @@ def download_song(
         "no_warnings": True,
         "nopart": True,
     }
+
+    # Use cookies.txt if it exists
+    cookies_file = Path("cookies.txt")
+
+    if cookies_file.is_file():
+        ydl_opts["cookiefile"] = str(cookies_file)
 
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         result = ydl.extract_info(
